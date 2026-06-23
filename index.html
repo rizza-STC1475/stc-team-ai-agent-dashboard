@@ -268,7 +268,10 @@ const COLORS={'Rizza Infante':'#185FA5','Charlene Legaspi':'#7C3AED','Ken Taleon
 function aColor(n){return COLORS[n]||'#1B7A6E'}
 function init(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
 
-function cfg(){return{s:localStorage.getItem('stc_v3_script')||'https://script.google.com/macros/s/AKfycbydAgJk0WexL6nW8X59-xwNe62mgUVZt-yK2QZAyrJThQEK0jDhOxeB9kjqDHF3-5Z9xw/exec',f:localStorage.getItem('stc_v3_form')||'https://docs.google.com/forms/d/e/1FAIpQLScDIbJ_IvQcpSAGSbr394Z8wPnqGTYLmv-Vi4As8lf0s-43FQ/viewform'}}
+function cfg(){return{
+  s:localStorage.getItem('stc_v3_script')||'https://docs.google.com/spreadsheets/d/e/2PACX-1vQyMPkNAffCMfGz0F4vT_wpkAcd_I8rPcFwO58D6RNSWD-WVidPk4u-1fuBSNKhgOpAezxt4KtTN7p8/pub?gid=1633273034&single=true&output=csv',
+  f:localStorage.getItem('stc_v3_form')||'https://docs.google.com/forms/d/e/1FAIpQLScDIbJ_IvQcpSAGSbr394Z8wPnqGTYLmv-Vi4As8lf0s-43FQ/viewform'
+}}
 function saveSetup(){
   const s=document.getElementById('scriptUrl').value.trim();
   const f=document.getElementById('formUrl').value.trim();
@@ -284,24 +287,36 @@ function updateAddBtn(){const btn=document.getElementById('addBtn');const c=cfg(
 
 let agents=[];
 
+function parseCSV(text){
+  const lines=text.split('\n').filter(l=>l.trim());
+  if(lines.length<2)return[];
+  const headers=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+  return lines.slice(1).map(line=>{
+    const values=[];let cur='';let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){values.push(cur.trim());cur='';}
+      else{cur+=ch;}
+    }
+    values.push(cur.trim());
+    const obj={};
+    headers.forEach((h,i)=>{obj[h]=values[i]?values[i].replace(/^"|"$/g,''):''});
+    return obj;
+  });
+}
+
 async function loadData(){
   const c=cfg();
   if(!c.s){showNotConnected();return}
   showLoading();
   try{
-    const r=await fetch(c.s,{method:"GET",mode:"cors",credentials:"omit"});
-    const raw=await r.json();
-    agents=raw.map(norm).filter(a=>a.name);
+    const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(c.s));
+    const data=await r.json();
+    const rows=parseCSV(data.contents);
+    agents=rows.map(norm).filter(a=>a.name);
     renderStats();renderCards();
-  }catch(e){
-    try{
-      const r2=await fetch("https://api.allorigins.win/get?url="+encodeURIComponent(c.s));
-      const data=await r2.json();
-      const raw=JSON.parse(data.contents);
-      agents=raw.map(norm).filter(a=>a.name);
-      renderStats();renderCards();
-    }catch(e2){showError()}
-  }
+  }catch(e){showError()}
 }
 
 function g(row,key){
