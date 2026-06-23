@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STC AI Agent Dashboard — SOP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F8FA;--surface:#FFF;--border:#E4E7EF;--border2:#D0D5E3;
+  --text:#111827;--text2:#4B5563;--text3:#9CA3AF;
+  --teal:#1B7A6E;--teal-bg:#E6F2F0;--teal-border:#A7D9D3;
+  --blue:#185FA5;--blue-bg:#EFF4FF;
+  --green:#0F6E56;--green-bg:#ECFDF5;--green-border:#6EE7B7;
+  --amber:#92400E;--amber-bg:#FFFBEB;--amber-border:#FCD34D;
+  --red:#991B1B;--red-bg:#FEF2F2;--red-border:#FCA5A5;
+  --font:'Inter',system-ui,sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex}
+
+/* SIDEBAR NAV */
+.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;flex-shrink:0;z-index:100}
+.sidebar-header{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.sidebar-logo svg{width:26px;height:26px;flex-shrink:0}
+.sidebar-logo span{font-size:13px;font-weight:600;color:var(--text)}
+.sidebar-sub{font-size:11px;color:var(--text3);margin-left:34px}
+.nav-section{padding:12px 12px 4px}
+.nav-section-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.15s;text-decoration:none;margin-bottom:1px}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--teal-bg);color:var(--teal);font-weight:500}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.5}
+.nav-item.active .dot{opacity:1}
+
+/* MAIN */
+.main{margin-left:260px;flex:1;padding:48px 56px 100px;max-width:900px}
+
+/* HEADER */
+.sop-header{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border)}
+.sop-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sop-eyebrow::before{content:'';width:20px;height:2px;background:var(--teal)}
+.sop-title{font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px}
+.sop-desc{font-size:16px;color:var(--text2);line-height:1.7;max-width:600px;margin-bottom:20px}
+.meta-row{display:flex;flex-wrap:wrap;gap:20px}
+.meta-item{display:flex;flex-direction:column;gap:2px}
+.meta-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3)}
+.meta-value{font-size:13px;font-weight:500;color:var(--text)}
+
+/* SECTIONS */
+.section{margin-bottom:48px;scroll-margin-top:32px}
+.section-title{font-size:20px;font-weight:600;letter-spacing:-0.01em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.section-title .icon{width:28px;height:28px;border-radius:7px;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* PROSE */
+p{font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:12px}
+p:last-child{margin-bottom:0}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:0}
+.tbl th{padding:9px 14px;background:var(--bg);font-weight:600;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);text-align:left;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#FAFBFD}
+.tbl-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:12px}
+.step{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.step-body{flex:1}
+.step-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.step-owner{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--teal-bg);color:var(--teal);border-radius:4px;font-size:11px;font-weight:600;margin-top:6px}
+.step-note{margin-top:8px;padding:8px 12px;background:var(--amber-bg);border-left:3px solid var(--amber-border);border-radius:0 6px 6px 0;font-size:12px;color:var(--amber);line-height:1.5}
+
+/* PHASE */
+.phase-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;margin-top:24px;display:flex;align-items:center;gap:8px}
+.phase-label::after{content:'';flex:1;height:1px;background:var(--teal-border)}
+.phase-label:first-child{margin-top:0}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:8px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;user-select:none}
+.check-item:hover{border-color:var(--teal-border)}
+.check-item.done{background:var(--green-bg);border-color:var(--green-border)}
+.check-box{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.15s}
+.check-item.done .check-box{background:var(--green);border-color:var(--green)}
+.check-label{font-size:13px;color:var(--text2);line-height:1.5}
+.check-item.done .check-label{color:var(--green);text-decoration:line-through;opacity:0.7}
+
+/* CALLOUT */
+.callout{padding:14px 18px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.7}
+.callout-info{background:var(--blue-bg);border-left:3px solid var(--blue);color:var(--blue)}
+.callout-warn{background:var(--amber-bg);border-left:3px solid var(--amber-border);color:var(--amber)}
+.callout-success{background:var(--green-bg);border-left:3px solid var(--green-border);color:var(--green)}
+.callout strong{font-weight:600}
+
+/* EXCEPTIONS TABLE */
+.exc-row td:first-child{font-weight:500;color:var(--red)}
+
+/* BADGE */
+.badge{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+
+/* PRINT */
+@media print{.sidebar{display:none}.main{margin-left:0}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:28px 20px 60px}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 26 26" fill="none">
+        <rect width="26" height="26" rx="7" fill="#1B7A6E"/>
+        <rect x="5" y="5" width="6" height="6" rx="1.5" fill="white"/>
+        <rect x="14" y="5" width="6" height="6" rx="1.5" fill="white" opacity=".6"/>
+        <rect x="5" y="14" width="6" height="6" rx="1.5" fill="white" opacity=".6"/>
+        <rect x="14" y="14" width="6" height="6" rx="1.5" fill="white"/>
+      </svg>
+      <span>STC Operations</span>
+    </div>
+    <p class="sidebar-sub">AI Agent Dashboard SOP</p>
+  </div>
+
+  <div class="nav-section">
+    <p class="nav-section-label">Overview</p>
+    <a class="nav-item active" onclick="scrollTo('overview')"><span class="dot"></span>Purpose & Scope</a>
+    <a class="nav-item" onclick="scrollTo('roles')"><span class="dot"></span>Roles</a>
+    <a class="nav-item" onclick="scrollTo('tools')"><span class="dot"></span>Tools & Resources</a>
+  </div>
+
+  <div class="nav-section">
+    <p class="nav-section-label">How To Use</p>
+    <a class="nav-item" onclick="scrollTo('access')"><span class="dot"></span>Accessing the Dashboard</a>
+    <a class="nav-item" onclick="scrollTo('submit')"><span class="dot"></span>Submitting an Agent</a>
+    <a class="nav-item" onclick="scrollTo('navigate')"><span class="dot"></span>Navigating the Dashboard</a>
+    <a class="nav-item" onclick="scrollTo('refresh')"><span class="dot"></span>Refreshing Data</a>
+  </div>
+
+  <div class="nav-section">
+    <p class="nav-section-label">Admin</p>
+    <a class="nav-item" onclick="scrollTo('rating')"><span class="dot"></span>Getting Your AI Rating</a>
+    <a class="nav-item" onclick="scrollTo('ebi')"><span class="dot"></span>EBI — Even Better If</a>
+    <a class="nav-item" onclick="scrollTo('update')"><span class="dot"></span>Updating an Existing Agent</a>
+    <a class="nav-item" onclick="scrollTo('post')"><span class="dot"></span>Adding Post-Training Agents</a>
+    <a class="nav-item" onclick="scrollTo('checks')"><span class="dot"></span>Quality Checks</a>
+    <a class="nav-item" onclick="scrollTo('exceptions')"><span class="dot"></span>Exceptions</a>
+  </div>
+
+  <div class="nav-section">
+    <p class="nav-section-label">Reference</p>
+    <a class="nav-item" onclick="scrollTo('fields')"><span class="dot"></span>Field Reference Guide</a>
+    <a class="nav-item" onclick="scrollTo('notes')"><span class="dot"></span>Notes</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- HEADER -->
+  <div class="sop-header">
+    <p class="sop-eyebrow">Standard Operating Procedure</p>
+    <h1 class="sop-title">STC AI Agent Dashboard</h1>
+    <p class="sop-desc">How to access, navigate, submit to, and maintain the STC Team AI Agent Dashboard — the live board showing every AI agent built across the team.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">1.0</span></div>
+      <div class="meta-item"><span class="meta-label">Owner</span><span class="meta-value">Rizza Infante, Director of Operations</span></div>
+      <div class="meta-item"><span class="meta-label">Last Updated</span><span class="meta-value">June 23, 2026</span></div>
+      <div class="meta-item"><span class="meta-label">Applies To</span><span class="meta-value">All STC Team Members</span></div>
+      <div class="meta-item"><span class="meta-label">Frequency</span><span class="meta-value">As needed — per agent built</span></div>
+    </div>
+  </div>
+
+  <!-- PURPOSE -->
+  <div class="section" id="overview">
+    <h2 class="section-title"><span class="icon">📋</span>Purpose & Scope</h2>
+    <p>The STC AI Agent Dashboard is the single source of truth for all AI agents built by the team. It shows who built what, what it automates, the skill rating, the gap plan, and what's next for each person.</p>
+    <p>This SOP covers how every team member — PH and US — accesses the dashboard, submits their agents, and keeps their cards updated as they continue building.</p>
+    <div class="callout callout-info">
+      <strong>Scope:</strong> This SOP applies to all seven STC team members — Rizza, Charlene, Ken, PJ, Holley, David, and Gonzalo. Both training agents (Days 1-17) and all post-training agents belong on this board.
+    </div>
+  </div>
+
+  <!-- ROLES -->
+  <div class="section" id="roles">
+    <h2 class="section-title"><span class="icon">👥</span>Roles & Responsibilities</h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Role</th><th>Name</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-blue">Dashboard Owner</span></td><td>Rizza Infante</td><td>Maintains the dashboard, approves AI ratings, shares the Form link with the team, and keeps the board current</td></tr>
+          <tr><td><span class="badge badge-green">Submitter</span></td><td>All Team Members</td><td>Submits one Google Form entry per agent built. Updates their entry when their agent improves.</td></tr>
+          <tr><td><span class="badge badge-amber">Viewer</span></td><td>David Gonzalez</td><td>Views the live dashboard via the Vercel URL. Does not submit directly — has his own card if he builds an agent.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="section" id="tools">
+    <h2 class="section-title"><span class="icon">🔧</span>Tools & Resources</h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Tool</th><th>Purpose in this SOP</th></tr></thead>
+        <tbody>
+          <tr><td><strong>STC AI Agent Dashboard</strong></td><td>Live board — the main output. Hosted on Vercel. View-only for most team members.</td></tr>
+          <tr><td><strong>Google Form — STC AI Agent Showcase</strong></td><td>How team members add their agents to the board. One submission per agent.</td></tr>
+          <tr><td><strong>Google Sheet — STC AI Agent Showcase (Responses)</strong></td><td>Stores all form responses. Rizza adds AI Ratings here directly.</td></tr>
+          <tr><td><strong>Claude</strong></td><td>Used to generate the AI Rating for each agent submission.</td></tr>
+          <tr><td><strong>Slack (#01-team-training)</strong></td><td>Where the Form link and dashboard URL are shared with the team.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCESSING -->
+  <div class="section" id="access">
+    <h2 class="section-title"><span class="icon">🔗</span>Accessing the Dashboard</h2>
+    <div class="callout callout-success">
+      <strong>Dashboard URL:</strong> stc-team-ai-agent-dashboard.vercel.app — bookmark this. It works on any browser, any device, no login required.
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Open the dashboard URL in your browser</div>
+          <div class="step-desc">Go to the Vercel URL shared in #01-team-training. No login required. Works on mobile and desktop.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Wait for cards to load</div>
+          <div class="step-desc">The dashboard fetches live data from Google Sheets. Cards appear within 2 to 5 seconds. If nothing loads, click Refresh.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Bookmark the URL</div>
+          <div class="step-desc">Save it to your browser bookmarks or pin it in Slack so you can access it anytime without searching.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMITTING -->
+  <div class="section" id="submit">
+    <h2 class="section-title"><span class="icon">➕</span>Submitting an Agent</h2>
+    <p>Every team member submits one Google Form entry per agent. If you built three agents, submit the form three times.</p>
+    <div class="callout callout-warn">
+      <strong>Important:</strong> Submit one form per agent — not one form for all your agents combined. The dashboard creates one card per submission.
+    </div>
+
+    <p class="phase-label">Phase 1 — Before You Submit</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Get your AI Rating from Claude</div>
+          <div class="step-desc">Open Claude and paste this prompt with your agent details filled in:</div>
+          <div class="step-note">"I built an AI agent called [Agent Name]. It [what it does]. I deployed it [how — Claude Project / Vercel / etc.] and it [current status — is in daily use / is still being built]. Based on what I built and how I built it, rate my agentic AI skill level from 1 to 10. Be honest and specific." — Use the number Claude gives you as your AI Rating.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Prepare your answers for all 17 fields</div>
+          <div class="step-desc">Review the Field Reference Guide at the bottom of this SOP before opening the form. Having your answers ready makes submission faster and more accurate.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="phase-label">Phase 2 — Submit the Form</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Click "+ Add Agent" on the dashboard</div>
+          <div class="step-desc">The green button in the top right corner of the dashboard. It opens the Google Form in a new tab.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Fill in all 17 fields and submit</div>
+          <div class="step-desc">Fields marked required must be completed. Agent Link and EBI Notes are optional. Do not leave required fields blank — the card will not display correctly.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Notify Rizza in Slack after submitting</div>
+          <div class="step-desc">Send a message in #01-team-training: "I submitted [Agent Name] to the dashboard." This lets Rizza know to click Refresh and verify your card appeared correctly.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="phase-label">Phase 3 — Verify Your Card</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <div class="step-title">Click Refresh on the dashboard</div>
+          <div class="step-desc">Go back to the dashboard and click the Refresh button. Your card should appear within a few seconds.</div>
+          <span class="step-owner">Rizza Infante</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <div class="step-title">Confirm all fields display correctly on your card</div>
+          <div class="step-desc">Check: your name, role, agent name, self rating, AI rating, what was automated, plan to close gap, next automation, and EBI status all show correctly.</div>
+          <span class="step-owner">Rizza Infante</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATING -->
+  <div class="section" id="navigate">
+    <h2 class="section-title"><span class="icon">🗂</span>Navigating the Dashboard</h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Element</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Header stats</strong></td><td>Shows total agents, live agents, in-build agents, and total members with submissions</td></tr>
+          <tr><td><strong>Search agents</strong></td><td>Type any keyword — agent name, owner name, or what it automates — to filter cards</td></tr>
+          <tr><td><strong>Filter by owner</strong></td><td>Dropdown to view only one team member's cards</td></tr>
+          <tr><td><strong>Phase tag</strong></td><td>Green = Training (Days 1-17). Amber = Post-Training</td></tr>
+          <tr><td><strong>Status badge</strong></td><td>Live, In Build, Review, or Planning — shows current state of the agent</td></tr>
+          <tr><td><strong>Self Rating ring</strong></td><td>Blue circle — the team member's own skill rating</td></tr>
+          <tr><td><strong>AI Rating ring</strong></td><td>Green circle — Claude's rating of the agent build</td></tr>
+          <tr><td><strong>Gap indicator</strong></td><td>Green = AI rates higher than self. Red = AI rates lower. Zero = ratings match</td></tr>
+          <tr><td><strong>View Agent button</strong></td><td>Links directly to the deployed agent if a URL was submitted</td></tr>
+          <tr><td><strong>Internal badge</strong></td><td>Shows when no public link exists — agent is a Claude Project</td></tr>
+          <tr><td><strong>Deadline chip</strong></td><td>Red = due within 7 days. Amber = due within 21 days. Green = further out</td></tr>
+          <tr><td><strong>Refresh button</strong></td><td>Pulls the latest data from Google Sheets</td></tr>
+          <tr><td><strong>+ Add Agent button</strong></td><td>Opens the Google Form to submit a new agent</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REFRESHING -->
+  <div class="section" id="refresh">
+    <h2 class="section-title"><span class="icon">🔄</span>Refreshing Data</h2>
+    <p>The dashboard does not auto-refresh. Data must be refreshed manually after a new form submission.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Click the Refresh button after any form submission</div>
+          <div class="step-desc">Top right of the dashboard. Always click this after a team member notifies you they submitted — not before.</div>
+          <span class="step-owner">Rizza Infante</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Wait 2 to 5 seconds for cards to reload</div>
+          <div class="step-desc">The dashboard fetches the published CSV from Google Sheets. It is fast but not instant.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">If data does not load, hard refresh the browser</div>
+          <div class="step-desc">Press Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows) to force a full reload. Then click Refresh again.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI RATING -->
+  <div class="section" id="rating">
+    <h2 class="section-title"><span class="icon">⭐</span>Getting Your AI Rating</h2>
+    <p>The AI Rating is not automatic. Each team member must prompt Claude themselves and use the number Claude returns.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Open a new Claude conversation</div>
+          <div class="step-desc">Do not use an existing conversation — start fresh so Claude has no prior context that could influence the rating.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Paste the rating prompt with your agent details</div>
+          <div class="step-note">"I built an AI agent called [Agent Name]. It [describe what it does in 1-2 sentences]. I deployed it [how — Claude Project only / Vercel / GitHub / etc.]. It [current status — is in daily use / is still being built / handles X tasks per week]. Based on what I built and how I built it, rate my agentic AI skill level from 1 to 10. Be honest and specific about what I did well and what would need to improve for a higher score."</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Use the number Claude gives you as your AI Rating in the form</div>
+          <div class="step-desc">If Claude gives a range (e.g., "6 to 7"), use the lower number. Honest ratings are more useful than optimistic ones.</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-info">
+      <strong>Rizza's role:</strong> After all team members submit, Rizza reviews each AI Rating for consistency. If a rating seems significantly off, she re-runs the prompt and updates the Google Sheet directly.
+    </div>
+  </div>
+
+  <!-- UPDATING -->
+  <div class="section" id="update">
+    <h2 class="section-title"><span class="icon">✏️</span>Updating an Existing Agent</h2>
+    <p>Agent cards update by submitting a new form entry. The old entry stays in the Sheet — Rizza deletes the outdated row after confirming the new one is correct.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Click "+ Add Agent" and fill in the updated form</div>
+          <div class="step-desc">Use the same Agent Name as your original submission. Update only the fields that changed — everything else stays the same.</div>
+          <span class="step-owner">Team member</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Notify Rizza in Slack with what changed</div>
+          <div class="step-desc">Example: "Updated my Payroll Agent card — changed status to Live and updated the self-rating to 7."</div>
+          <span class="step-owner">Team member</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Rizza deletes the old row from the Google Sheet</div>
+          <div class="step-desc">Open STC AI Agent Showcase (Responses) → find the old row for that agent → delete it. Then click Refresh on the dashboard to confirm only the updated card shows.</div>
+          <span class="step-owner">Rizza Infante</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EBI SECTION -->
+  <div class="section" id="ebi">
+    <h2 class="section-title"><span class="icon">✨</span>EBI — Even Better If</h2>
+    <div class="callout callout-info">
+      <strong>This is not optional.</strong> EBI is one of the most important skills in the program. Every team member must add the EBI skill to their Claude before submitting their agent card. It directly impacts the quality and rating of everything you build.
+    </div>
+    <p>EBI stands for <strong>Even Better If</strong> — a structured feedback process used to continuously improve your AI agent. Instead of just accepting the first output Claude gives you, the EBI process pushes you to identify what's working, what could be stronger, and apply targeted improvements in order of impact.</p>
+
+    <p class="phase-label">Why EBI Matters for Your Agent</p>
+    <p>The gap between a 5/10 agent and a 7/10 agent is almost always EBI. Agents that were run through the EBI process consistently score higher on output quality, prompt architecture, and feature completeness. It is the single most effective tool for closing the gap between your self-rating and your AI rating.</p>
+
+    <div class="tbl-wrap" style="margin-bottom:20px">
+      <table class="tbl">
+        <thead><tr><th>Without EBI</th><th>With EBI</th></tr></thead>
+        <tbody>
+          <tr><td>First output accepted as final</td><td>Output reviewed, ranked, and improved before finalizing</td></tr>
+          <tr><td>Vague prompt improvements over time</td><td>Specific, ranked improvements applied in order of impact</td></tr>
+          <tr><td>Agent plateaus at initial quality</td><td>Agent gets measurably better with each iteration</td></tr>
+          <tr><td>EBI field on dashboard shows No or Awaiting</td><td>EBI field shows Yes — signals a higher-quality build</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="phase-label">How to Add EBI to Your Claude</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Open your Claude Project for your agent</div>
+          <div class="step-desc">Go to claude.ai, open your agent's Project. The EBI skill is added as part of your system prompt or as a saved instruction.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Add the EBI skill to your Claude — paste this into a new conversation in your Project</div>
+          <div class="step-note">EBI Process — run this on any output I give you before we finalize it:
+
+1. What's working — name what's strong and should be preserved
+2. Even Better If... — list 5 to 10 ranked improvements, sharpest impact first, each starting with "Even better if..."
+3. Apply — when I pick numbers, rewrite with only those changes applied
+4. Go deeper — after applying, offer one more EBI pass at the next level
+
+Format: clean, numbered, no fluff. Think like an operator reviewing work before it ships.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Run EBI on your agent's most important output</div>
+          <div class="step-desc">After your agent produces its main output — the triage decision, the payroll report, the meeting summary — paste it back and say "Run EBI on this." Pick the improvements that matter most and apply them.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Run EBI on your system prompt</div>
+          <div class="step-desc">Paste your full agent system prompt and say "Run EBI on this system prompt — what would make this agent more precise, reliable, and useful?" Apply the top 3 suggestions.</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Mark EBI Skill Applied as Yes in the form</div>
+          <div class="step-desc">When you submit your agent card, select Yes for EBI Skill Applied and write a short note in EBI Notes describing what you improved. Example: "Used EBI to tighten the routing logic and improve output format clarity."</div>
+          <span class="step-owner">All team members</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="phase-label">When to Run EBI</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Trigger</th><th>What to EBI</th></tr></thead>
+        <tbody>
+          <tr><td>After your agent produces its first output</td><td>The output itself — is it clear, complete, and usable?</td></tr>
+          <tr><td>After writing your system prompt</td><td>The system prompt — is it precise and unambiguous?</td></tr>
+          <tr><td>Before marking your agent as Live</td><td>The full agent — would a teammate understand how to use it?</td></tr>
+          <tr><td>When your AI Rating is lower than your self-rating</td><td>Whatever Claude flags as the weakest area in its rating feedback</td></tr>
+          <tr><td>Every time you add a new feature or workflow</td><td>The new addition — does it integrate cleanly with what already exists?</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>If your EBI field shows "No" or "Awaiting" on the dashboard:</strong> Your card is flagged. Rizza will follow up. Run EBI on your agent, resubmit the form with Yes selected, and include what you improved in the EBI Notes field.
+    </div>
+  </div>
+
+  <!-- POST-TRAINING -->
+  <div class="section" id="post">
+    <h2 class="section-title"><span class="icon">🚀</span>Adding Post-Training Agents</h2>
+    <p>Any agent built after the 17-day training program belongs on this board. The process is identical to submitting a training agent — the only difference is the Phase field.</p>
+    <div class="callout callout-success">
+      <strong>Phase field:</strong> Select <strong>Post-Training</strong> for any agent built after June 9, 2026. The card will show an amber rocket tag instead of the green graduation cap.
+    </div>
+    <p>There is no deadline for post-training submissions. Submit whenever a new agent is built or when an existing agent reaches a significant new milestone (e.g., went from In Build to Live).</p>
+  </div>
+
+  <!-- QUALITY CHECKS -->
+  <div class="section" id="checks">
+    <h2 class="section-title"><span class="icon">✅</span>Quality Checks</h2>
+    <p>Rizza runs these checks after every batch of submissions or at minimum once per week.</p>
+    <div class="checklist" id="checklist">
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">All active team members have at least one card on the board</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">No duplicate cards for the same agent from the same owner</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">All AI Ratings are filled in — no cards showing "—" in the AI Rating ring</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Gap Deadlines with red chips (due within 7 days) have been followed up</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Cards marked "In Build" for more than 30 days have been checked on</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">All cards have EBI Skill Applied marked as Yes — No or Awaiting cards have been followed up</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">EBI Notes field is filled in for all Yes entries — not left blank</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Google Sheet row 1 headers are still clean short names (no helper text)</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Dashboard URL still loads correctly on Vercel</span></div>
+    </div>
+  </div>
+
+  <!-- EXCEPTIONS -->
+  <div class="section" id="exceptions">
+    <h2 class="section-title"><span class="icon">⚠️</span>Exceptions & Escalations</h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Situation</th><th>Action</th><th>Who handles it</th></tr></thead>
+        <tbody class="exc-row">
+          <tr><td>Dashboard shows "Couldn't load data"</td><td>Hard refresh the browser. If still failing, check that the Google Sheet is still published to web as CSV.</td><td>Rizza Infante</td></tr>
+          <tr><td>Card shows "Unknown" as owner name</td><td>Owner field in the Sheet header has helper text. Clean row 1 of the Sheet back to short field names only.</td><td>Rizza Infante</td></tr>
+          <tr><td>Wrong number of cards showing</td><td>Duplicate rows in the Sheet. Delete older duplicate rows. Click Refresh.</td><td>Rizza Infante</td></tr>
+          <tr><td>Team member cannot access the Form</td><td>Share the Google Form URL directly via Slack DM.</td><td>Rizza Infante</td></tr>
+          <tr><td>Team member skips the AI Rating field</td><td>Run the AI Rating prompt for them using their description. Add the rating directly to their row in the Sheet.</td><td>Rizza Infante</td></tr>
+          <tr><td>Vercel URL goes down</td><td>Log into Vercel, check deployment status. Redeploy from GitHub if needed.</td><td>Rizza Infante</td></tr>
+          <tr><td>Google Sheet CSV URL changes</td><td>Re-publish the Sheet as CSV. Update the CSV URL in the dashboard HTML file on GitHub. Redeploy.</td><td>Rizza Infante</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FIELD REFERENCE -->
+  <div class="section" id="fields">
+    <h2 class="section-title"><span class="icon">📖</span>Field Reference Guide</h2>
+    <p>Use this as your cheat sheet when filling in the Google Form.</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Field</th><th>Type</th><th>What to put</th><th>Required</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Agent Name</strong></td><td>Short answer</td><td>The name of your agent. Example: Bring to David Gate</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>2</td><td><strong>Owner</strong></td><td>Dropdown</td><td>Your full name from the dropdown list</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>3</td><td><strong>Role / Title</strong></td><td>Short answer</td><td>Your job title at STC. Example: Director of Operations</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>4</td><td><strong>What It Automates</strong></td><td>Short answer</td><td>One short phrase. Example: Escalation triage for David</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>5</td><td><strong>Description</strong></td><td>Paragraph</td><td>2 to 3 sentences on what it does, input, and output</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>6</td><td><strong>Status</strong></td><td>Multiple choice</td><td>Live / In Build / Review / Planning</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>7</td><td><strong>Phase</strong></td><td>Multiple choice</td><td>Training (if built during Days 1-17) or Post-Training</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>8</td><td><strong>Self Rating</strong></td><td>Scale 1-10</td><td>Your honest rating of your own agentic AI skill right now</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>9</td><td><strong>AI Rating</strong></td><td>Scale 1-10</td><td>The number Claude gives when you run the rating prompt</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>10</td><td><strong>Plan to Close Gap</strong></td><td>Paragraph</td><td>What specifically you will do to improve your rating</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>11</td><td><strong>Gap Deadline</strong></td><td>Short answer</td><td>Date by when you will complete the plan. Example: Jul 14</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>12</td><td><strong>Next Automation</strong></td><td>Paragraph</td><td>The next task you plan to automate. Be specific.</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>13</td><td><strong>Next Automation Timeline</strong></td><td>Short answer</td><td>When you plan to complete it. Example: Jul 21</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>14</td><td><strong>Agent Link</strong></td><td>Short answer</td><td>URL to your deployed agent. Leave blank if Claude Project only.</td><td><span class="badge badge-green">No</span></td></tr>
+          <tr><td>15</td><td><strong>Button Label</strong></td><td>Multiple choice</td><td>View Agent / View Site / View Dashboard. Only fill if you have a link.</td><td><span class="badge badge-green">No</span></td></tr>
+          <tr><td>16</td><td><strong>EBI Skill Applied</strong></td><td>Multiple choice</td><td>Yes or No — did you use the EBI process to improve your agent?</td><td><span class="badge badge-red">Yes</span></td></tr>
+          <tr><td>17</td><td><strong>EBI Notes</strong></td><td>Short answer</td><td>If Yes, what did you use EBI to improve? Leave blank if No.</td><td><span class="badge badge-green">No</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="section" id="notes">
+    <h2 class="section-title"><span class="icon">📝</span>Notes</h2>
+    <div class="callout callout-warn">
+      <strong>Google Sheet row 1 rule:</strong> Never add helper text back to row 1 of the Sheet. The dashboard reads column headers by exact name. If headers contain extra text, cards will show "Unknown" and fields will not map correctly.
+    </div>
+    <div class="callout callout-info">
+      <strong>CSV publishing:</strong> The dashboard reads from the Google Sheet via a published CSV URL. If the Sheet is ever unpublished, the dashboard will stop loading. To re-publish: File → Share → Publish to web → Sheet1 → CSV → Publish.
+    </div>
+    <div class="callout callout-success">
+      <strong>File naming:</strong> This SOP is saved in Google Drive as: <code>2026-06-23 STC AI Agent Dashboard SOP v1.0</code>
+    </div>
+    <p>For any issues not covered in the Exceptions section, message Rizza in Slack. Do not troubleshoot the Vercel deployment or GitHub repo without Rizza's involvement.</p>
+  </div>
+
+</main>
+
+<script>
+function scrollTo(id){
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+function toggleCheck(el){
+  el.classList.toggle('done');
+  const box=el.querySelector('.check-box');
+  box.textContent=el.classList.contains('done')?'✓':'';
+}
+window.addEventListener('scroll',()=>{
+  const sections=['overview','roles','tools','access','submit','navigate','refresh','rating','update','post','checks','exceptions','fields','notes'];
+  let current='';
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.getBoundingClientRect().top<120)current=id;
+  });
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.classList.remove('active');
+    if(item.getAttribute('onclick')&&item.getAttribute('onclick').includes("'"+current+"'"))item.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
