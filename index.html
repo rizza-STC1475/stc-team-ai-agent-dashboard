@@ -310,13 +310,25 @@ async function loadData(){
   const c=cfg();
   if(!c.s){showNotConnected();return}
   showLoading();
-  try{
-    const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(c.s));
-    const data=await r.json();
-    const rows=parseCSV(data.contents);
-    agents=rows.map(norm).filter(a=>a.name);
-    renderStats();renderCards();
-  }catch(e){showError()}
+  const proxies=[
+    url=>url,
+    url=>'https://corsproxy.io/?'+encodeURIComponent(url),
+    url=>'https://api.allorigins.win/raw?url='+encodeURIComponent(url),
+    url=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url)
+  ];
+  for(const proxy of proxies){
+    try{
+      const r=await fetch(proxy(c.s),{cache:'no-cache'});
+      const text=await r.text();
+      if(!text||text.includes('<!DOCTYPE')||text.length<10)continue;
+      const rows=parseCSV(text);
+      if(!rows.length)continue;
+      agents=rows.map(norm).filter(a=>a.name);
+      renderStats();renderCards();
+      return;
+    }catch(e){continue}
+  }
+  showError();
 }
 
 function g(row,key){
