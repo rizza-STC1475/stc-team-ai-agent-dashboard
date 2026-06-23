@@ -268,7 +268,7 @@ const COLORS={'Rizza Infante':'#185FA5','Charlene Legaspi':'#7C3AED','Ken Taleon
 function aColor(n){return COLORS[n]||'#1B7A6E'}
 function init(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
 
-function cfg(){return{s:localStorage.getItem('stc_v3_script')||'',f:localStorage.getItem('stc_v3_form')||''}}
+function cfg(){return{s:localStorage.getItem('stc_v3_script')||'https://script.google.com/macros/s/AKfycbydAgJk0WexL6nW8X59-xwNe62mgUVZt-yK2QZAyrJThQEK0jDhOxeB9kjqDHF3-5Z9xw/exec',f:localStorage.getItem('stc_v3_form')||'https://docs.google.com/forms/d/e/1FAIpQLScDIbJ_IvQcpSAGSbr394Z8wPnqGTYLmv-Vi4As8lf0s-43FQ/viewform'}}
 function saveSetup(){
   const s=document.getElementById('scriptUrl').value.trim();
   const f=document.getElementById('formUrl').value.trim();
