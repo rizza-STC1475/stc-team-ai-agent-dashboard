@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STC AI Agent Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F2F1ED;--surface:#FFF;--surface2:#ECEAE4;--border:#E0DDD6;--border2:#CDD2E0;
+  --text:#111;--text2:#555;--text3:#999;
+  --blue:#185FA5;--bluebg:#E6F1FB;--blueborder:#378ADD;
+  --green:#0F6E56;--greenbg:#E1F5EE;--greenborder:#1D9E75;
+  --red:#A32D2D;--redbg:#FCEBEB;--redborder:#F7C1C1;
+  --amber:#854F0B;--amberbg:#FEF3E2;--amberborder:#BA7517;
+  --font:'Syne',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+
+/* NAV */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:var(--text)}
+.brand svg{width:28px;height:28px}
+.nav-right{display:flex;align-items:center;gap:10px}
+.btn-outline{display:flex;align-items:center;gap:6px;padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:100px;font-family:var(--font);font-size:13px;cursor:pointer;transition:all .15s}
+.btn-outline:hover{background:var(--surface2);color:var(--text)}
+.btn-teal{display:flex;align-items:center;gap:7px;padding:8px 18px;background:#1B7A6E;color:#fff;border:none;border-radius:100px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;transition:background .15s}
+.btn-teal:hover{background:#155E54}
+
+/* HEADER */
+.header{background:var(--text);padding:40px 48px 36px;position:relative;z-index:1}
+.header-inner{max-width:1200px;margin:0 auto}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9BA3B8;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:24px;height:2px;background:#4C8EFF;flex-shrink:0}
+h1{font-size:32px;font-weight:700;letter-spacing:-.02em;color:#fff;margin-bottom:6px}
+h1 span{color:#60A5FA}
+.header-sub{font-size:13px;color:#9BA3B8;line-height:1.7;max-width:560px}
+.stats-row{display:flex;gap:36px;flex-wrap:wrap}
+.stat-num{font-size:30px;font-weight:700;color:#fff;line-height:1}
+.stat-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#9BA3B8;margin-top:4px}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:40px 48px 80px}
+
+/* SECTION */
+.sec-lbl{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* FILTERS */
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+.fl{font-size:12px;color:var(--text2);margin-bottom:6px}
+.fi,.fs{width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .15s}
+.fi:focus,.fs:focus{border-color:#1B7A6E}
+.fi::placeholder{color:var(--text3)}
+
+/* CARDS GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:box-shadow .15s}
+.card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+
+/* CARD HEAD */
+.card-head{padding:18px 20px 14px;border-bottom:1px solid var(--border)}
+.head-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.member{display:flex;align-items:center;gap:10px}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
+.mname{font-size:15px;font-weight:600;color:var(--text);line-height:1.2}
+.mrole{font-size:11px;color:var(--text3);margin-top:2px}
+.sbadge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.03em;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.sb-submitted{background:var(--greenbg);color:var(--green);border:1px solid var(--greenborder)}
+.sb-missing{background:var(--redbg);color:var(--red);border:1px solid var(--redborder)}
+.agent-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.phase-tag{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;background:var(--greenbg);color:var(--green)}
+.phase-tag.post{background:var(--amberbg);color:var(--amber)}
+.agent-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:500;color:var(--text)}
+.view-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--text);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);text-decoration:none;transition:opacity .15s}
+.view-btn:hover{opacity:.8}
+.internal-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text3)}
+
+/* RATINGS */
+.ratings{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center}
+.rb{text-align:center}
+.rl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:7px}
+.ring{width:68px;height:68px;margin:0 auto 5px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.rtrack{fill:none;stroke:var(--border);stroke-width:5}
+.rfill{fill:none;stroke-width:5;stroke-linecap:round}
+.rnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:19px;font-weight:600}
+.rdesc{font-size:10px;color:var(--text3)}
+.gblock{text-align:center}
+.gpill{display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:3px}
+.gn{background:var(--redbg);color:var(--red);border:1px solid var(--redborder)}
+.gp{background:var(--greenbg);color:var(--green);border:1px solid var(--greenborder)}
+.gz{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.gna{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+/* CARD BODY */
+.card-body{padding:14px 20px}
+.ir{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.ir:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.il{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.iv{font-size:13px;color:var(--text);line-height:1.6}
+.iv2{font-size:12px;color:var(--text2);line-height:1.6}
+.row-between{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.dc{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;white-space:nowrap;flex-shrink:0;margin-top:3px}
+.dc-red{background:var(--redbg);color:var(--red);border:1px solid var(--redborder)}
+.dc-green{background:var(--greenbg);color:var(--green);border:1px solid var(--greenborder)}
+.dc-amber{background:var(--amberbg);color:var(--amber);border:1px solid var(--amberborder)}
+.ebi-yes{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:var(--greenbg);color:var(--green);border:1px solid var(--greenborder);border-radius:5px;font-size:11px;font-weight:600}
+.ebi-no{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:var(--redbg);color:var(--red);border:1px solid var(--redborder);border-radius:5px;font-size:11px;font-weight:600}
+.ebi-await{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:var(--amberbg);color:var(--amber);border:1px solid var(--amberborder);border-radius:5px;font-size:11px;font-weight:600}
+.ebi-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ebi-note{font-size:12px;color:var(--text2)}
+
+/* MISSING CARD */
+.card.missing{border-style:dashed;border-color:var(--redborder);background:var(--redbg)}
+
+/* EMPTY / LOADING */
+.state{text-align:center;padding:80px 40px;grid-column:1/-1}
+.state-icon{font-size:44px;margin-bottom:16px}
+.state-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.state-sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+
+/* SETUP MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:18px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(12px);transition:transform .2s}
+.overlay.open .modal{transform:translateY(0)}
+.mhead{padding:24px 28px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mtitle{font-size:18px;font-weight:600}
+.mclose{width:30px;height:30px;border-radius:50%;border:none;background:var(--surface2);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.mclose:hover{background:var(--border)}
+.mbody{padding:22px 28px 28px}
+.step{margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+.step:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#1B7A6E;color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-bottom:8px}
+.stitle{font-size:14px;font-weight:600;margin-bottom:5px}
+.ssub{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px}
+.code{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto;margin-bottom:8px}
+.flbl{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;margin-top:12px}
+.finp{width:100%;padding:9px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+.finp:focus{border-color:#1B7A6E;background:var(--surface)}
+.finp::placeholder{color:var(--text3)}
+.bcopy{padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-family:var(--font);font-size:12px;cursor:pointer;color:var(--text2);transition:all .15s}
+.bcopy:hover{background:var(--border)}
+.bsave{width:100%;padding:12px;background:#1B7A6E;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;transition:background .15s}
+.bsave:hover{background:#155E54}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:640px){
+  .nav{padding:0 16px}.header{padding:28px 20px}.main{padding:28px 20px 60px}
+  h1{font-size:24px}.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr}
+  .mhead,.mbody{padding-left:20px;padding-right:20px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand">
+    <svg viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="8" fill="#1B7A6E"/>
+      <rect x="6" y="6" width="7" height="7" rx="2" fill="white"/>
+      <rect x="15" y="6" width="7" height="7" rx="2" fill="white" opacity=".6"/>
+      <rect x="6" y="15" width="7" height="7" rx="2" fill="white" opacity=".6"/>
+      <rect x="15" y="15" width="7" height="7" rx="2" fill="white"/>
+    </svg>
+    Simply The Coolest
+  </div>
+  <div class="nav-right">
+    <button class="btn-outline" onclick="loadData()">&#8635; Refresh</button>
+    <button class="btn-outline" onclick="openSetup()">&#9881; Setup</button>
+    <a class="btn-teal" id="addBtn" href="#" target="_blank">+ Add Agent</a>
+  </div>
+</nav>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <p class="eyebrow">Simply The Coolest</p>
+        <h1>Team <span>AI Agent</span> Dashboard</h1>
+        <p class="header-sub">A visual record of every AI agent built across the STC team. Self-rating, AI assessment, skill gap, next automation, and deadline — all in one place.</p>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div><div class="stat-num" id="sTot">—</div><div class="stat-lbl">Agents Built</div></div>
+      <div><div class="stat-num" id="sLive">—</div><div class="stat-lbl">Live</div></div>
+      <div><div class="stat-num" id="sBuild">—</div><div class="stat-lbl">In Build</div></div>
+      <div><div class="stat-num" id="sMembers">—</div><div class="stat-lbl">Members</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="filters">
+    <div><p class="fl">Search agents</p><input class="fi" id="searchInput" placeholder="Search agents..." oninput="renderCards()"></div>
+    <div><p class="fl">Filter by owner</p>
+      <select class="fs" id="ownerFilter" onchange="renderCards()">
+        <option value="">All team members</option>
+        <optgroup label="Operations (PH)">
+          <option>Rizza Infante</option><option>Charlene Legaspi</option>
+          <option>Ken Taleon</option><option>Pel John Pediangco</option>
+        </optgroup>
+        <optgroup label="Leadership (US)">
+          <option>David Gonzalez</option><option>Gonzalo Paternoster</option><option>Holley Gonzalez</option>
+        </optgroup>
+      </select>
+    </div>
+  </div>
+  <p class="sec-lbl">Team agent cards</p>
+  <div class="grid" id="cardGrid"></div>
+</div>
+
+<!-- SETUP MODAL -->
+<div class="overlay" id="setupOverlay" onclick="if(event.target===this)closeSetup()">
+<div class="modal">
+  <div class="mhead">
+    <span class="mtitle">Connect to Google Sheets</span>
+    <button class="mclose" onclick="closeSetup()">&#x2715;</button>
+  </div>
+  <div class="mbody">
+    <div class="step">
+      <div class="snum">1</div>
+      <div class="stitle">Update the Apps Script</div>
+      <div class="ssub">In your Google Sheet go to Extensions → Apps Script. Replace everything with this updated code. Save and deploy as a new version.</div>
+      <div class="code" id="scriptCode">function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var rows = data.slice(1);
+  var agents = rows
+    .filter(function(row){ return row[1]; })
+    .map(function(row){
+      var obj = {};
+      headers.forEach(function(h,i){
+        obj[h.toString().trim()] = row[i];
+      });
+      return obj;
+    });
+  return ContentService
+    .createTextOutput(JSON.stringify(agents))
+    .setMimeType(ContentService.MimeType.JSON);
+}</div>
+      <button class="bcopy" onclick="copyScript()">Copy script</button>
+    </div>
+    <div class="step">
+      <div class="snum">2</div>
+      <div class="stitle">Paste your URLs</div>
+      <label class="flbl">Apps Script Web App URL</label>
+      <input class="finp" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      <label class="flbl">Google Form URL</label>
+      <input class="finp" id="formUrl" placeholder="https://docs.google.com/forms/d/.../viewform">
+      <button class="bsave" onclick="saveSetup()">Save and connect</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS={'Rizza Infante':'#185FA5','Charlene Legaspi':'#7C3AED','Ken Taleon':'#0891B2','Pel John Pediangco':'#059669','Holley Gonzalez':'#D97706','David Gonzalez':'#DC2626','Gonzalo Paternoster':'#7C3AED'};
+function aColor(n){return COLORS[n]||'#1B7A6E'}
+function init(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
+
+function cfg(){return{s:localStorage.getItem('stc_v3_script')||'',f:localStorage.getItem('stc_v3_form')||''}}
+function saveSetup(){
+  const s=document.getElementById('scriptUrl').value.trim();
+  const f=document.getElementById('formUrl').value.trim();
+  if(!s){showToast('Paste the Apps Script URL first');return}
+  localStorage.setItem('stc_v3_script',s);
+  if(f)localStorage.setItem('stc_v3_form',f);
+  closeSetup();showToast('Connected! Loading agents...');
+  setTimeout(loadData,400);
+}
+function openSetup(){const c=cfg();document.getElementById('scriptUrl').value=c.s;document.getElementById('formUrl').value=c.f;document.getElementById('setupOverlay').classList.add('open')}
+function closeSetup(){document.getElementById('setupOverlay').classList.remove('open')}
+function updateAddBtn(){const btn=document.getElementById('addBtn');const c=cfg();if(c.f){btn.href=c.f;btn.onclick=null}else{btn.href='#';btn.onclick=function(e){e.preventDefault();openSetup()}}}
+
+let agents=[];
+
+async function loadData(){
+  const c=cfg();
+  if(!c.s){showNotConnected();return}
+  showLoading();
+  try{
+    const r=await fetch(c.s);
+    if(!r.ok)throw new Error();
+    const raw=await r.json();
+    agents=raw.map(norm).filter(a=>a.name);
+    renderStats();renderCards();
+  }catch(e){showError()}
+}
+
+function g(row,key){
+  const val=row[key]||row[key.toLowerCase()]||row[key.toUpperCase()]||'';
+  return String(val).trim();
+}
+
+function norm(row){
+  return{
+    name:        g(row,'Agent Name'),
+    owner:       g(row,'Owner'),
+    role:        g(row,'Role / Title'),
+    automated:   g(row,'What It Automates'),
+    desc:        g(row,'Description'),
+    status:      g(row,'Status')||'Live',
+    phase:       g(row,'Phase')||'Training',
+    selfRating:  parseInt(g(row,'Self Rating'))||0,
+    aiRating:    parseInt(g(row,'AI Rating'))||0,
+    plan:        g(row,'Plan to Close Gap'),
+    deadline:    g(row,'Gap Deadline'),
+    next:        g(row,'Next Automation'),
+    nextTime:    g(row,'Next Automation Timeline'),
+    link:        g(row,'Agent Link'),
+    btnLabel:    g(row,'Button Label')||'View Agent',
+    ebi:         g(row,'EBI Skill Applied'),
+    ebiNotes:    g(row,'EBI Notes'),
+  }
+}
+
+function renderStats(){
+  document.getElementById('sTot').textContent=agents.length;
+  document.getElementById('sLive').textContent=agents.filter(a=>a.status==='Live').length;
+  document.getElementById('sBuild').textContent=agents.filter(a=>['In Build','Review'].includes(a.status)).length;
+  document.getElementById('sMembers').textContent=[...new Set(agents.map(a=>a.owner).filter(Boolean))].length;
+}
+
+function renderCards(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const owner=document.getElementById('ownerFilter').value;
+  const grid=document.getElementById('cardGrid');
+  const filtered=agents.filter(a=>{
+    const ms=!search||[a.name,a.automated,a.desc,a.owner].some(x=>(x||'').toLowerCase().includes(search));
+    const mo=!owner||a.owner===owner;
+    return ms&&mo;
+  });
+  if(!filtered.length){
+    grid.innerHTML=`<div class="state"><div class="state-icon">🔍</div><div class="state-title">No agents match</div><div class="state-sub">Try clearing your search or filter.</div></div>`;
+    return;
+  }
+  grid.innerHTML=filtered.map(buildCard).join('');
+}
+
+function deadlineColor(d){
+  if(!d)return'dc-amber';
+  const dt=new Date(d);const now=new Date();const diff=(dt-now)/(1000*60*60*24);
+  if(diff<7)return'dc-red';if(diff<21)return'dc-amber';return'dc-green';
+}
+
+function buildCard(a){
+  const sr=a.selfRating,ar=a.aiRating;
+  const gap=(sr&&ar)?ar-sr:null;
+  const C=2*Math.PI*30;
+
+  const ring=(score,color)=>{
+    if(!score)return`<div class="ring"><svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="30" class="rtrack"/></svg><span class="rnum" style="color:var(--text3);font-size:13px">—</span></div>`;
+    const off=C-(C*(score/10));
+    return`<div class="ring"><svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="30" class="rtrack"/><circle cx="34" cy="34" r="30" class="rfill" stroke="${color}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/></svg><span class="rnum" style="color:${color}">${score}</span></div>`;
+  };
+
+  const gapHtml=gap===null
+    ?`<div class="gpill gna">—</div><div style="font-size:10px;color:var(--text3);margin-top:3px">Pending</div>`
+    :gap<0
+      ?`<div class="gpill gn">▼ ${Math.abs(gap)}</div><div style="font-size:10px;color:var(--text3);margin-top:3px">AI rates lower</div>`
+      :gap>0
+        ?`<div class="gpill gp">▲ ${gap}</div><div style="font-size:10px;color:var(--text3);margin-top:3px">AI rates higher</div>`
+        :`<div class="gpill gz">= 0</div><div style="font-size:10px;color:var(--text3);margin-top:3px">Ratings match</div>`;
+
+  const linkHtml=a.link
+    ?`<a class="view-btn" href="${esc(a.link)}" target="_blank" rel="noopener">&#9632; ${esc(a.btnLabel||'View Agent')}</a>`
+    :`<span class="internal-tag">&#9632; Internal</span>`;
+
+  const ebiHtml=a.ebi.toLowerCase()==='yes'
+    ?`<div class="ebi-yes">&#9632; Yes</div>${a.ebiNotes?`<span class="ebi-note">${esc(a.ebiNotes)}</span>`:''}`
+    :a.ebi.toLowerCase()==='no'
+      ?`<div class="ebi-no">&#9632; No</div>`
+      :`<div class="ebi-await">&#9632; Awaiting</div>`;
+
+  const statusColor={Live:'sb-submitted','In Build':'sb-missing',Review:'sb-missing',Planning:'sb-missing'}[a.status]||'sb-missing';
+
+  return`<div class="card">
+    <div class="card-head">
+      <div class="head-top">
+        <div class="member">
+          <div class="av" style="background:${aColor(a.owner)}">${init(a.owner)}</div>
+          <div>
+            <div class="mname">${esc(a.owner||'Unknown')}</div>
+            <div class="mrole">${esc(a.role||'')}</div>
+          </div>
+        </div>
+        <span class="sbadge ${statusColor}">&#9632; Submitted</span>
+      </div>
+      <div class="agent-row">
+        <span class="phase-tag ${a.phase==='Post-Training'?'post':''}">${a.phase==='Training'?'🎓 Training':'🚀 Post-Training'}</span>
+        <span class="agent-pill">&#9632; ${esc(a.name)}</span>
+        ${linkHtml}
+      </div>
+    </div>
+    <div class="ratings">
+      <div class="rb"><div class="rl">Self rating</div>${ring(sr,'#185FA5')}<div class="rdesc">Out of 10</div></div>
+      <div class="gblock"><div class="rl">Gap</div>${gapHtml}</div>
+      <div class="rb"><div class="rl">AI rating</div>${ring(ar,'#0F6E56')}<div class="rdesc">Out of 10</div></div>
+    </div>
+    <div class="card-body">
+      <div class="ir">
+        <div class="il">&#9632; What was automated</div>
+        <div class="iv">${esc(a.desc||a.automated||'—')}</div>
+      </div>
+      ${a.plan?`<div class="ir">
+        <div class="il">&#9650; Plan to close the gap</div>
+        <div class="row-between">
+          <div class="iv">${esc(a.plan)}</div>
+          ${a.deadline?`<span class="dc ${deadlineColor(a.deadline)}">${esc(a.deadline)}</span>`:''}
+        </div>
+      </div>`:''}
+      ${a.next?`<div class="ir">
+        <div class="il">&#9654; Next automation</div>
+        <div class="row-between">
+          <div class="iv">${esc(a.next)}</div>
+          ${a.nextTime?`<span class="dc dc-amber">${esc(a.nextTime)}</span>`:''}
+        </div>
+      </div>`:''}
+      <div class="ir">
+        <div class="il">&#9733; EBI skill applied</div>
+        <div class="ebi-row">${ebiHtml}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function showLoading(){
+  document.getElementById('cardGrid').innerHTML=`<div class="state"><div class="state-icon">⟳</div><div class="state-title">Loading agents...</div><div class="state-sub">Fetching from Google Sheets</div></div>`;
+  ['sTot','sLive','sBuild','sMembers'].forEach(id=>document.getElementById(id).textContent='—');
+}
+function showNotConnected(){
+  document.getElementById('cardGrid').innerHTML=`<div class="state"><div class="state-icon">🔗</div><div class="state-title">Not connected yet</div><div class="state-sub">Click Setup to connect this dashboard to Google Sheets.</div><button class="btn-teal" onclick="openSetup()" style="margin:0 auto">&#9881; Connect to Google Sheets</button></div>`;
+}
+function showError(){
+  document.getElementById('cardGrid').innerHTML=`<div class="state"><div class="state-icon">⚠️</div><div class="state-title">Couldn't load data</div><div class="state-sub">Check your Apps Script URL and make sure access is set to Anyone. Then refresh.</div><button class="btn-outline" onclick="loadData()" style="margin:0 auto">&#8635; Try again</button></div>`;
+}
+function copyScript(){navigator.clipboard.writeText(document.getElementById('scriptCode').textContent).then(()=>showToast('Script copied'))}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+updateAddBtn();loadData();
+</script>
+</body>
+</html>
