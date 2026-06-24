@@ -236,14 +236,14 @@ function checkPw(){
       <div>
         <p class="eyebrow">Simply The Coolest</p>
         <h1>Team <span>AI Agent</span> Dashboard</h1>
-        <p class="header-sub">A visual record of every AI agent built across the STC team. Self-rating, AI assessment, skill gap, next automation, and deadline — all in one place.</p>
+        <p class="header-sub">A visual record of every AI agent built across the STC team. Self-rating, AI assessment, skill gap, next automation, and deadline. All in one place.</p>
       </div>
     </div>
     <div class="stats-row">
-      <div><div class="stat-num" id="sTot">—</div><div class="stat-lbl">Agents Built</div></div>
-      <div><div class="stat-num" id="sLive">—</div><div class="stat-lbl">Live</div></div>
-      <div><div class="stat-num" id="sBuild">—</div><div class="stat-lbl">In Build</div></div>
-      <div><div class="stat-num" id="sMembers">—</div><div class="stat-lbl">Members</div></div>
+      <div><div class="stat-num" id="sTot"> </div><div class="stat-lbl">Agents Built</div></div>
+      <div><div class="stat-num" id="sLive"> </div><div class="stat-lbl">Live</div></div>
+      <div><div class="stat-num" id="sBuild"> </div><div class="stat-lbl">In Build</div></div>
+      <div><div class="stat-num" id="sMembers"> </div><div class="stat-lbl">Members</div></div>
     </div>
   </div>
 </div>
@@ -458,13 +458,13 @@ function buildCard(a){
   const C=2*Math.PI*30;
 
   const ring=(score,color)=>{
-    if(!score)return`<div class="ring"><svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="30" class="rtrack"/></svg><span class="rnum" style="color:var(--text3);font-size:13px">—</span></div>`;
+    if(!score)return`<div class="ring"><svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="30" class="rtrack"/></svg><span class="rnum" style="color:var(--text3);font-size:13px"> </span></div>`;
     const off=C-(C*(score/10));
     return`<div class="ring"><svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="30" class="rtrack"/><circle cx="34" cy="34" r="30" class="rfill" stroke="${color}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/></svg><span class="rnum" style="color:${color}">${score}</span></div>`;
   };
 
   const gapHtml=gap===null
-    ?`<div class="gpill gna">—</div><div style="font-size:10px;color:var(--text3);margin-top:3px">Pending</div>`
+    ?`<div class="gpill gna"> </div><div style="font-size:10px;color:var(--text3);margin-top:3px">Pending</div>`
     :gap<0
       ?`<div class="gpill gn">▼ ${Math.abs(gap)}</div><div style="font-size:10px;color:var(--text3);margin-top:3px">AI rates lower</div>`
       :gap>0
@@ -509,7 +509,7 @@ function buildCard(a){
     <div class="card-body">
       <div class="ir">
         <div class="il">&#9632; What was automated</div>
-        <div class="iv">${esc(a.desc||a.automated||'—')}</div>
+        <div class="iv">${esc(a.desc||a.automated||' ')}</div>
       </div>
       ${a.plan?`<div class="ir">
         <div class="il">&#9650; Plan to close the gap</div>
@@ -535,7 +535,7 @@ function buildCard(a){
 
 function showLoading(){
   document.getElementById('cardGrid').innerHTML=`<div class="state"><div class="state-icon">⟳</div><div class="state-title">Loading agents...</div><div class="state-sub">Fetching from Google Sheets</div></div>`;
-  ['sTot','sLive','sBuild','sMembers'].forEach(id=>document.getElementById(id).textContent='—');
+  ['sTot','sLive','sBuild','sMembers'].forEach(id=>document.getElementById(id).textContent=' ');
 }
 function showNotConnected(){
   document.getElementById('cardGrid').innerHTML=`<div class="state"><div class="state-icon">🔗</div><div class="state-title">Not connected yet</div><div class="state-sub">Click Setup to connect this dashboard to Google Sheets.</div><button class="btn-teal" onclick="openSetup()" style="margin:0 auto">&#9881; Connect to Google Sheets</button></div>`;
