@@ -159,6 +159,57 @@ h1 span{color:#60A5FA}
 </style>
 </head>
 <body>
+<style>
+#pwGate{position:fixed;inset:0;background:#0D0F14;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:0}
+.pw-box{background:#13161E;border:1px solid #252A38;border-radius:16px;padding:40px;width:100%;max-width:360px;text-align:center}
+.pw-logo{width:48px;height:48px;margin:0 auto 20px}
+.pw-logo svg{width:48px;height:48px}
+.pw-title{font-size:20px;font-weight:700;color:#E8EAF0;margin-bottom:6px}
+.pw-sub{font-size:13px;color:#8B92A8;margin-bottom:24px}
+.pw-input{width:100%;padding:11px 16px;background:#0D0F14;border:1px solid #252A38;border-radius:8px;font-family:var(--font);font-size:14px;color:#E8EAF0;outline:none;transition:border-color .15s;text-align:center;letter-spacing:0.05em}
+.pw-input:focus{border-color:#1B7A6E}
+.pw-input::placeholder{color:#565E78;letter-spacing:0}
+.pw-btn{width:100%;padding:12px;background:#1B7A6E;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;margin-top:12px;transition:background .15s}
+.pw-btn:hover{background:#155E54}
+.pw-err{font-size:12px;color:#FF5C5C;margin-top:10px;display:none}
+</style>
+<div id="pwGate">
+  <div class="pw-box">
+    <div class="pw-logo">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="12" fill="#1B7A6E"/>
+        <rect x="9" y="9" width="12" height="12" rx="3" fill="white"/>
+        <rect x="27" y="9" width="12" height="12" rx="3" fill="white" opacity=".6"/>
+        <rect x="9" y="27" width="12" height="12" rx="3" fill="white" opacity=".6"/>
+        <rect x="27" y="27" width="12" height="12" rx="3" fill="white"/>
+      </svg>
+    </div>
+    <p class="pw-title">Simply The Coolest</p>
+    <p class="pw-sub">Enter the team password to access the dashboard.</p>
+    <input class="pw-input" id="pwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">Access Dashboard</button>
+    <p class="pw-err" id="pwErr">Incorrect password. Try again.</p>
+  </div>
+</div>
+<script>
+(function(){
+  if(sessionStorage.getItem('stc_auth')==='ok'){
+    document.getElementById('pwGate').style.display='none';
+  }
+})();
+function checkPw(){
+  const v=document.getElementById('pwInput').value;
+  if(v==='STCt3@m1143'){
+    sessionStorage.setItem('stc_auth','ok');
+    document.getElementById('pwGate').style.display='none';
+  } else {
+    document.getElementById('pwErr').style.display='block';
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+  }
+}
+</script>
+
 
 <nav class="nav">
   <div class="brand">
