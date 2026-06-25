@@ -398,8 +398,6 @@ function loadData(){
   script.src='https://script.google.com/macros/s/AKfycbydAgJk0WexL6nW8X59-xwNe62mgUVZt-yK2QZAyrJThQEK0jDhOxeB9kjqDHF3-5Z9xw/exec?callback=stcCallback&nocache='+Date.now();
   document.body.appendChild(script);
 }
-}catch(e){showError();}
-}
 
 function g(row,key){
   const val=row[key]||row[key.toLowerCase()]||row[key.toUpperCase()]||'';
