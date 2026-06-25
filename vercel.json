@@ -1,11 +1,3 @@
 {
-  "functions": {
-    "api/data.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "routes": [
-    { "src": "/api/data", "dest": "/api/data.js" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "version": 2
 }
