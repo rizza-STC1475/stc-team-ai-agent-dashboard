@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STC AI Agent Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -374,19 +375,27 @@ function parseCSV(text){
 function loadData(){
   showLoading();
   var existing=document.getElementById('stcScript');
-  if(existing)existing.remove();
-  var timeout=setTimeout(function(){showError();},12000);
+  if(existing){existing.remove();delete window.stcCallback;}
+  var done=false;
+  var timeout=setTimeout(function(){
+    if(!done){done=true;showError();}
+  },15000);
   window.stcCallback=function(data){
+    if(done)return;done=true;
     clearTimeout(timeout);
     try{
+      if(!data||!Array.isArray(data))throw new Error('Bad data');
       agents=data.map(norm).filter(function(a){return a.name;});
       renderStats();renderCards();
     }catch(e){showError();}
   };
   var script=document.createElement('script');
   script.id='stcScript';
-  script.onerror=function(){clearTimeout(timeout);showError();};
-  script.src='https://script.google.com/macros/s/AKfycbydAgJk0WexL6nW8X59-xwNe62mgUVZt-yK2QZAyrJThQEK0jDhOxeB9kjqDHF3-5Z9xw/exec?callback=stcCallback&t='+Date.now();
+  script.type='text/javascript';
+  script.onerror=function(e){
+    if(!done){done=true;clearTimeout(timeout);showError();}
+  };
+  script.src='https://script.google.com/macros/s/AKfycbydAgJk0WexL6nW8X59-xwNe62mgUVZt-yK2QZAyrJThQEK0jDhOxeB9kjqDHF3-5Z9xw/exec?callback=stcCallback&nocache='+Date.now();
   document.body.appendChild(script);
 }
 }catch(e){showError();}
