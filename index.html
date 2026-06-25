@@ -371,17 +371,24 @@ function parseCSV(text){
   });
 }
 
-async function loadData(){
+function loadData(){
   showLoading();
-  try{
-    const r=await fetch('/api/data',{cache:'no-store'});
-    if(!r.ok)throw new Error('API failed');
-    const text=await r.text();
-    if(!text||text.length<10)throw new Error('Empty response');
-    const rows=parseCSV(text);
-    agents=rows.map(norm).filter(a=>a.name);
-    renderStats();renderCards();
-  }catch(e){showError();}
+  var existing=document.getElementById('stcScript');
+  if(existing)existing.remove();
+  var timeout=setTimeout(function(){showError();},12000);
+  window.stcCallback=function(data){
+    clearTimeout(timeout);
+    try{
+      agents=data.map(norm).filter(function(a){return a.name;});
+      renderStats();renderCards();
+    }catch(e){showError();}
+  };
+  var script=document.createElement('script');
+  script.id='stcScript';
+  script.onerror=function(){clearTimeout(timeout);showError();};
+  script.src='https://script.google.com/macros/s/AKfycbydAgJk0WexL6nW8X59-xwNe62mgUVZt-yK2QZAyrJThQEK0jDhOxeB9kjqDHF3-5Z9xw/exec?callback=stcCallback&t='+Date.now();
+  document.body.appendChild(script);
+}
 }catch(e){showError();}
 }
 
